@@ -9,9 +9,29 @@ import (
 	"time"
 )
 
+func formatSize(bytes int) string {
+	const (
+		B  = 1.0
+		KB = 1024 * B
+		MB = 1024 * KB
+		GB = 1024 * MB
+	)
+
+	switch {
+	case bytes < int(KB):
+		return fmt.Sprintf("%d Bytes", bytes)
+	case bytes < int(MB):
+		return fmt.Sprintf("%.2f KB", float64(bytes)/KB)
+	case bytes < int(GB):
+		return fmt.Sprintf("%.2f MB", float64(bytes)/MB)
+	default:
+		return fmt.Sprintf("%.2f GB", float64(bytes)/GB)
+	}
+}
+
 func main() {
-	url := "https://speed.hetzner.de/100MB.bin"
-	filePath := "save/100MB.bin"
+	url := "https://www.dundeecity.gov.uk/sites/default/files/publications/civic_renewal_forms.zip"
+	filePath := "save/dynamicSize.bin"
 
 	// Download
 	startDownload := time.Now()
@@ -33,10 +53,13 @@ func main() {
 		return
 	}
 
+	dataSize := len(data)
+	fmt.Println("Size of the downloaded file:", formatSize(dataSize))
+
 	elapsedDownload := time.Since(startDownload).Seconds()
-	downloadSpeed := float64(len(data)) / elapsedDownload
+	downloadSpeed := float64(dataSize) / elapsedDownload
 	fmt.Printf("Time taken to download the file: %f seconds\n", elapsedDownload)
-	fmt.Printf("Download speed: %f MB/s\n", downloadSpeed/1e6)
+	fmt.Printf("Download speed: %f KB/s\n", downloadSpeed/1024)
 
 	// Save
 	startSave := time.Now()
@@ -53,9 +76,9 @@ func main() {
 	}
 
 	elapsedSave := time.Since(startSave).Seconds()
-	saveSpeed := float64(len(data)) / elapsedSave
+	saveSpeed := float64(dataSize) / elapsedSave
 	fmt.Printf("Time taken to save the file: %f seconds\n", elapsedSave)
-	fmt.Printf("Save speed: %f MB/s\n", saveSpeed/1e6)
+	fmt.Printf("Save speed: %f KB/s\n", saveSpeed/1024)
 
 	// Delete
 	startDelete := time.Now()
@@ -65,7 +88,7 @@ func main() {
 		return
 	}
 	elapsedDelete := time.Since(startDelete).Seconds()
-	deleteSpeed := float64(len(data)) / elapsedDelete
+	deleteSpeed := float64(dataSize) / elapsedDelete
 	fmt.Printf("Time taken to delete the file: %f seconds\n", elapsedDelete)
-	fmt.Printf("Delete speed: %f MB/s\n", deleteSpeed/1e6)
+	fmt.Printf("Delete speed: %f KB/s\n", deleteSpeed/1024)
 }
