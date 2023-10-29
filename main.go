@@ -47,8 +47,9 @@ func main() {
 
 	e := echo.New()
 	api := router.API{
-		Echo:        e,
-		PromHandler: promHandler,
+		Echo:               e,
+		PromHandler:        promHandler,
+		InspectDiskHandler: inspectDiskHandler,
 	}
 	api.SetupRouter()
 	e.Logger.Fatal(e.Start(":1994"))
