@@ -2,6 +2,7 @@ package log
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	rotatelogs "github.com/mrnim94/file-rotatelogs"
@@ -77,6 +78,7 @@ func InitLogger(forTest bool) *MyLogger {
 				logrus.ErrorLevel: writerError,
 				logrus.WarnLevel:  writerInfo,
 				logrus.InfoLevel:  writerInfo,
+				logrus.DebugLevel: writerInfo,
 			},
 			&logrus.TextFormatter{
 				TimestampFormat:  time.RFC3339Nano,
@@ -88,6 +90,7 @@ func InitLogger(forTest bool) *MyLogger {
 	singletonLogger = &MyLogger{
 		Logger: Log,
 	}
+
 	return singletonLogger
 }
 
@@ -322,6 +325,7 @@ func (l *MyLogger) Level() log.Lvl {
 // SetLevel logger level
 func (l *MyLogger) SetLevel(v log.Lvl) {
 	l.Logger.Level = toLogrusLevel(v)
+	fmt.Println(toLogrusLevel(v))
 }
 
 // Formatter return logger formatter
@@ -372,7 +376,7 @@ func (l *MyLogger) Printj(j log.JSON) {
 
 // Debug output message of debug level
 func (l *MyLogger) Debug(i ...interface{}) {
-	l.Logger.Info(i...)
+	l.Logger.Debug(i...)
 }
 
 // Debugf output format message of debug level
