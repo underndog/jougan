@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	echoSwagger "github.com/swaggo/echo-swagger"
+	_ "jougan/docs"
 	"jougan/handler"
 	"jougan/helper/monitor/monitor_impl"
 	"jougan/log"
@@ -16,6 +18,18 @@ func init() {
 	log.InitLogger(false)
 	os.Setenv("TZ", "Asia/Ho_Chi_Minh")
 }
+
+// @title Jougan API
+// @version 1.0
+// @description This is a sample server Petstore server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 func main() {
 
@@ -46,6 +60,9 @@ func main() {
 	}()
 
 	e := echo.New()
+
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	api := router.API{
 		Echo:               e,
 		PromHandler:        promHandler,

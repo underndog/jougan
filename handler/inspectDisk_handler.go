@@ -19,6 +19,16 @@ type InspectDiskHandler struct {
 	Monitoring monitor.Monitoring
 }
 
+// SignUp godoc
+// @Summary Test Donwnload File
+// @Description	Measure Download File and Save to Disk
+// @Tags inspect
+// @Accept  json
+// @Produce  json
+// @Param data body model.DownloadFile true "measure"
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Router /inspect/download-url [post]
 func (id *InspectDiskHandler) HandlerInspectDownloadFile(c echo.Context) error {
 	req := model.DownloadFile{}
 	if err := c.Bind(&req); err != nil {
@@ -33,8 +43,8 @@ func (id *InspectDiskHandler) HandlerInspectDownloadFile(c echo.Context) error {
 	measure, err := downloadFile(req)
 	if err != nil {
 		log.Error(err.Error())
-		return c.JSON(http.StatusForbidden, model.Response{
-			StatusCode: http.StatusForbidden,
+		return c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
 			Data:       nil,
 		})
@@ -42,7 +52,7 @@ func (id *InspectDiskHandler) HandlerInspectDownloadFile(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
-		Message:    "Xử lý thành công",
+		Message:    "Successful Process",
 		Data:       measure,
 	})
 }
