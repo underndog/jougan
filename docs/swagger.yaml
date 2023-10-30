@@ -1,0 +1,58 @@
+definitions:
+  model.DownloadFile:
+    properties:
+      downloadUrl:
+        description: tags
+        type: string
+      saveTo:
+        type: string
+    type: object
+  model.Response:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      message:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Jougan API
+  version: "1.0"
+paths:
+  /inspect/download-url:
+    post:
+      consumes:
+      - application/json
+      description: Measure Download File and Save to Disk
+      parameters:
+      - description: measure
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.DownloadFile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Test Donwnload File
+      tags:
+      - inspect
+swagger: "2.0"
