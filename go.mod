@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/labstack/echo-contrib v0.15.0
-	github.com/labstack/echo/v4 v4.11.2
+	github.com/labstack/echo/v4 v4.11.3
 	github.com/labstack/gommon v0.4.1
 	github.com/mrnim94/file-rotatelogs v2.4.0+incompatible
 	github.com/prometheus/client_golang v1.17.0
