@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"io"
 	"jougan/helper"
+	"jougan/helper/aws_cloud"
 	"jougan/helper/monitor"
 	"jougan/log"
 	"jougan/model"
@@ -17,6 +18,7 @@ import (
 
 type InspectDiskHandler struct {
 	Monitoring monitor.Monitoring
+	AWSCloud   aws_cloud.AWSCloud
 }
 
 // SignUp godoc
@@ -59,8 +61,22 @@ func (id *InspectDiskHandler) HandlerInspectDownloadFile(c echo.Context) error {
 
 func (id *InspectDiskHandler) DiskHandler() {
 	log.Debug("Begin to measure the dowloading file - Debug")
+	var url string
 
-	url := helper.GetEnvOrDefault("DOWNLOAD_URL", "https://www.dundeecity.gov.uk/sites/default/files/publications/civic_renewal_forms.zip")
+	s3Bucket, okBucket := os.LookupEnv("DOWNLOAD_FROM_S3_BUCKET")
+	S3Key, okKey := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
+	if !okBucket || !okKey {
+		url = helper.GetEnvOrDefault("DOWNLOAD_URL", "https://www.dundeecity.gov.uk/sites/default/files/publications/civic_renewal_forms.zip")
+	} else {
+		log.Info("Generate Pre-Signed URL of ", s3Bucket, " Bucket")
+		presignedURL, err := id.AWSCloud.CreatePreSignedURL(s3Bucket, S3Key)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		url = presignedURL
+	}
+
 	filePath := helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
 
 	// Download
