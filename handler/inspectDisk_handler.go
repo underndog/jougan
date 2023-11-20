@@ -61,21 +61,12 @@ func (id *InspectDiskHandler) HandlerInspectDownloadFile(c echo.Context) error {
 
 func (id *InspectDiskHandler) DiskHandler() {
 	log.Debug("Begin to measure the dowloading file - Debug")
-	var url string
 
-	s3Bucket, okBucket := os.LookupEnv("DOWNLOAD_FROM_S3_BUCKET")
-	S3Key, okKey := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
-	if !okBucket || !okKey {
-		url = helper.GetEnvOrDefault("DOWNLOAD_URL", "https://www.dundeecity.gov.uk/sites/default/files/publications/civic_renewal_forms.zip")
-	} else {
-		log.Info("Generate Pre-Signed URL of ", s3Bucket, " Bucket")
-		presignedURL, err := id.AWSCloud.CreatePreSignedURL(s3Bucket, S3Key)
-		if err != nil {
-			log.Error(err)
-			return
-		}
-		url = presignedURL
-	}
+	os.Setenv("DOWNLOAD_FROM_S3_BUCKET", "ahihi-09262023")
+	os.Setenv("DOWNLOAD_FROM_S3_KEY", "4def6e02f687bd0ea3544a417ac2080b88d9a3b0511419da4ad7776167fc8545")
+
+	// call get Function: getDownloadURL() in this file
+	url := id.getDownloadURL()
 
 	filePath := helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
 
@@ -213,4 +204,22 @@ func downloadFile(download model.DownloadFile) (model.MetricResponse, error) {
 	measureResult.DeleteSpeed = deleteSpeed
 
 	return measureResult, nil
+}
+
+func (id *InspectDiskHandler) getDownloadURL() string {
+	s3Bucket, okBucket := os.LookupEnv("DOWNLOAD_FROM_S3_BUCKET")
+	S3Key, okKey := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
+
+	if !okBucket || !okKey {
+		return helper.GetEnvOrDefault("DOWNLOAD_URL", "https://www.dundeecity.gov.uk/sites/default/files/publications/civic_renewal_forms.zip")
+	}
+
+	log.Info("Generate Pre-Signed URL of ", s3Bucket, " Bucket")
+	presignedURL, err := id.AWSCloud.CreatePreSignedURL(s3Bucket, S3Key)
+	if err != nil {
+		log.Error(err)
+		return ""
+	}
+
+	return presignedURL
 }

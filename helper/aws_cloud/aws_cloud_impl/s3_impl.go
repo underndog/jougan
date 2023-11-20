@@ -2,7 +2,6 @@ package aws_cloud_impl
 
 import (
 	"context"
-	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"jougan/log"
@@ -24,8 +23,8 @@ func (ac *AWSConfiguration) CreatePreSignedURL(bucket string, key string) (strin
 	//key := "your-object-key"
 
 	// Define the duration that the pre-signed URL should be valid for
-	//  example, 15 minutes
-	expireTime := 15 * time.Minute
+	//  example, 1 minutes
+	expireTime := 1 * time.Minute
 
 	//// Create a GetObject request
 	//getObjectInput := &s3.GetObjectInput{
@@ -44,6 +43,6 @@ func (ac *AWSConfiguration) CreatePreSignedURL(bucket string, key string) (strin
 	}
 
 	// Output the presigned URL
-	fmt.Println("Presigned URL:", req.URL)
+	//fmt.Println("Presigned URL:", req.URL)
 	return req.URL, nil
 }
