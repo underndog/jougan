@@ -6,6 +6,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 	_ "jougan/docs"
 	"jougan/handler"
+	"jougan/helper"
 	"jougan/helper/aws_cloud/aws_cloud_impl"
 	"jougan/helper/monitor/monitor_impl"
 	"jougan/log"
@@ -40,14 +41,9 @@ func main() {
 	reg := pConfig.Registry
 	promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg})
 
-	//Connect AWS
-	awsRegion, ok := os.LookupEnv("AWS_REGION")
-	if !ok {
-		os.Setenv("AWS_REGION", "us-west-2")
-	} else {
-		log.Info("Zeus is working on ", awsRegion)
+	awsCloud := &aws_cloud_impl.AWSConfiguration{
+		Region: helper.GetEnvOrDefault("AWS_REGION", "us-west-2"),
 	}
-	awsCloud := &aws_cloud_impl.AWSConfiguration{Region: awsRegion}
 
 	inspectDiskHandler := handler.InspectDiskHandler{
 		Monitoring: pConfig,

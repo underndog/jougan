@@ -219,7 +219,7 @@ func (id *InspectDiskHandler) getDownloadURL() (string, string) {
 		return url, path.Base(url)
 	}
 
-	log.Info("Generate Pre-Signed URL of ", s3Bucket, " Bucket")
+	log.Debug("Generate Pre-Signed URL of ", s3Bucket, " Bucket")
 	presignedURL, err := id.AWSCloud.CreatePreSignedURL(s3Bucket, S3Key)
 	if err != nil {
 		log.Error(err)
