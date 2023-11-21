@@ -96,3 +96,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+envVars: {}
+#  AWS_REGION: us-east-1
