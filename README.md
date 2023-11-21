@@ -13,7 +13,6 @@ JouGan can download the file you request. I calculate and report:
 - Time taken to delete the file (seconds)
 - Delete speed (MB/s)
 
-<<<<<<< HEAD
 ## Install Jougan on K8s   
 
 Add repository:   
@@ -72,9 +71,7 @@ volumeMounts:
   - mountPath: /app/downloaded
     name: file-service
 ```
-=======
 
 ## Create Helm Chart
 helm package ./helm-chart/jougan --destination ./helm-chart/
 helm repo index . --url https://mrnim94.github.io/jougan
->>>>>>> master
