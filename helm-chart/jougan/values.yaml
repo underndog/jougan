@@ -100,3 +100,7 @@ affinity: {}
 
 envVars: {}
 #  AWS_REGION: us-east-1
+
+envFrom: []
+# - secretRef:
+#     name: mdc-workflow
