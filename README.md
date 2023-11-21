@@ -29,7 +29,7 @@ helm install my-jougan jougan/jougan --version x.x.x
 
 Example:   
 - Measure Disk Speed any file from Download URL   
-```
+```shell
 envVars:
   DOWNLOAD_URL: "https://files.testfile.org/PDF/10MB-TESTFILE.ORG.pdf"
   SAVE_TO_LOCATION: /app/downloaded/dynamicSize.bin
@@ -49,7 +49,7 @@ volumeMounts:
 ```
 
 - Measure Disk Speed any file on S3 (AWS)   
-```
+```shell
 envVars:
   AWS_REGION: us-west-2
   DOWNLOAD_FROM_S3_BUCKET: "ahihi-09262023"
