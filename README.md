@@ -28,9 +28,9 @@ helm install my-jougan jougan/jougan --version x.x.x
 ### value file   
 
 Example:   
-- Measure Disk Speed any file from Download URL   
-```
-
+#### Measure Disk Speed any file from Download URL
+ 
+```yaml
 envVars:
   DOWNLOAD_URL: "https://files.testfile.org/PDF/10MB-TESTFILE.ORG.pdf"
   SAVE_TO_LOCATION: /app/downloaded/dynamicSize.bin
