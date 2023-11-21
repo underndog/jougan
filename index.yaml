@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  jougan:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2023-11-21T04:40:51.81302696Z"
+    description: A Helm chart for Kubernetes
+    digest: 3557882a221c2db986c77a1e9b4b730f40916ce40bbe459136fb1e510960910f
+    name: jougan
+    type: application
+    urls:
+    - https://mrnim94.github.io/jougan/helm-chart/jougan-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-11-21T04:40:51.812132264Z"
