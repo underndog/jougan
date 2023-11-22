@@ -122,8 +122,8 @@ func (id *InspectDiskHandler) DiskHandler() {
 
 	// Check if the file exists
 	_, err = os.Stat(filePath)
-	if os.IsNotExist(err) {
-		log.Debug("File does not exist:", filePath)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		log.Error("File does not exist:", filePath)
 		return
 	}
 	log.Debug("File is saved to", filePath)
