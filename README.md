@@ -28,7 +28,7 @@ helm install my-jougan jougan/jougan --version x.x.x
 ### value file   
 
 Example:   
-- Measure Disk Speed any file from Download URL   
+#### Measure Disk Speed any file from Download URL
 ```yaml
 envVars:
   DOWNLOAD_URL: "https://files.testfile.org/PDF/10MB-TESTFILE.ORG.pdf"
@@ -48,7 +48,7 @@ volumeMounts:
     name: file-service
 ```
 
-- Measure Disk Speed any file on S3 (AWS)
+#### Measure Disk Speed any file on S3 (AWS)   
 ```yaml
 envVars:
   AWS_REGION: us-west-2
