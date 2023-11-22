@@ -68,8 +68,6 @@ func (id *InspectDiskHandler) DiskHandler() {
 	// call get Function: getDownloadURL() in this file
 	url, fileName := id.getDownloadURL()
 
-	filePath := helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
-
 	// Download
 	startDownload := time.Now()
 	resp, err := http.Get(url)
@@ -100,6 +98,8 @@ func (id *InspectDiskHandler) DiskHandler() {
 	//fmt.Printf("Download speed: %f KB/s\n", downloadSpeed/1024)
 	id.Monitoring.SpeedMonitor(fileName, "download", downloadSpeed, elapsedDownload)
 
+	filePath := helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
+
 	//// Save
 	startSave := time.Now()
 	out, err := os.Create(filePath)
@@ -119,6 +119,14 @@ func (id *InspectDiskHandler) DiskHandler() {
 	//fmt.Printf("Time taken to save the file: %f seconds\n", elapsedSave)
 	//fmt.Printf("Save speed: %f KB/s\n", saveSpeed/1024)
 	id.Monitoring.SpeedMonitor(fileName, "save", saveSpeed, elapsedSave)
+
+	// Check if the file exists
+	_, err = os.Stat(filePath)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		log.Error("File does not exist:", filePath)
+		return
+	}
+	log.Debug("File is saved to", filePath)
 
 	// Delete
 	startDelete := time.Now()

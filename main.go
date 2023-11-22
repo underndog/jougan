@@ -17,7 +17,10 @@ import (
 
 func init() {
 	os.Setenv("APP_NAME", "jougan-inspects-disk")
-	log.InitLogger(false)
+	logger := log.InitLogger(false)
+	if _, debugLog := os.LookupEnv("DEBUG_LOG"); debugLog {
+		logger.SetLevel(1)
+	}
 	os.Setenv("TZ", "Asia/Ho_Chi_Minh")
 }
 

@@ -72,6 +72,7 @@ volumeMounts:
     name: file-service
 ```
 
+
 ## Create Helm Chart
 helm package ./helm-chart/jougan --destination ./helm-chart/
 helm repo index . --url https://mrnim94.github.io/jougan
