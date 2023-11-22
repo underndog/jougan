@@ -1,5 +1,5 @@
 <h1 align="center" style="border-bottom: none">
-    <a href="https://nimtechnology.com/2023/07/02/jougan-project/" target="_blank"><img alt="JouGan" width="120px" src="https://cdn131.picsart.com/329673960061211.png"></a><br>JouGan
+    <a href="https://nimtechnology.com/2023/07/02/zeus-retention-project/" target="_blank"><img alt="JouGan" width="120px" src="https://cdn131.picsart.com/329673960061211.png"></a><br>JouGan
 </h1>
 
 <p align="center">Monitoring the speed and volume of Kubernetes in a real-life scenario.</p>
@@ -71,7 +71,3 @@ volumeMounts:
   - mountPath: /app/downloaded
     name: file-service
 ```
-
-## Create Helm Chart
-helm package ./helm-chart/jougan --destination ./helm-chart/
-helm repo index . --url https://mrnim94.github.io/jougan
