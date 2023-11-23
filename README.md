@@ -72,7 +72,101 @@ volumeMounts:
     name: file-service
 ```
 
+### Yaml deployment:   
+You install quickly Jougan
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: jougan
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: jougan
+    app.kubernetes.io/version: v0.0.2
+    helm.sh/chart: jougan-0.1.1
+  name: jougan
+  namespace: mdaas-engines-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: jougan
+      app.kubernetes.io/name: jougan
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: '1994'
+        prometheus.io/scrape: 'true'
+      labels:
+        app.kubernetes.io/instance: jougan
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: jougan
+        app.kubernetes.io/version: v0.0.2
+        helm.sh/chart: jougan-0.1.1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - jougan
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - env:
+            - name: AWS_ACCESS_KEY_ID
+              value: XXXXXGKBQ65KXXXXXX
+            - name: AWS_REGION
+              value: us-west-2
+            - name: AWS_SECRET_ACCESS_KEY
+              value: xxxxxxx//1dSxxxxxxxJ7nkIrxxxxxxx
+            - name: DEBUG_LOG
+              value: 'false'
+            - name: DOWNLOAD_FROM_S3_BUCKET
+              value: ahihi-09262023
+            - name: DOWNLOAD_FROM_S3_KEY
+              value: 200MB-TESTFILE.ORG.pdf
+            - name: SAVE_TO_LOCATION
+              value: /app/downloaded/dynamicSize.bin
+          image: 'mrnim94/jougan:v0.0.3'
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          name: jougan
+          ports:
+            - containerPort: 1994
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources: {}
+          securityContext: {}
+          volumeMounts:
+            - mountPath: /app/downloaded
+              name: file-service
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext: {}
+      serviceAccountName: jougan
+      volumes:
+        - name: file-service
+          persistentVolumeClaim:
+            claimName: pvc-file-service-smb-1
+```
+## Grafana
+
+Links: https://grafana.com/grafana/dashboards/20013-jougan-measure-disk-speed/
+
+<a href="https://nimtechnology.com/2023/07/02/jougan-project/" target="_blank"><img alt="JouGan" src="https://grafana.com/api/dashboards/20013/images/15212/image"></a>
 
 ## Create Helm Chart
-helm package ./helm-chart/jougan --destination ./helm-chart/
-helm repo index . --url https://mrnim94.github.io/jougan
+helm package ./helm-chart/jougan --destination ./helm-chart/   
+helm repo index . --url https://mrnim94.github.io/jougan   
