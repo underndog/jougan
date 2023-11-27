@@ -18,7 +18,7 @@ jobs:
           docker run -v ${{ github.workspace }}:/target dxa4481/trufflehog --entropy=False file:///target
       - name: Run Semgrep using a Container
         run: |
-          docker run --rm -v "$(pwd):/src" returntocorp/semgrep -c https://semgrep.dev/p/gosec /src
+          docker run --rm -v "$(pwd):/src" returntocorp/semgrep semgrep --config "p/golang" /src
         env:
           SEMGREP_SKIP_STATS: 1  # Optional: skip anonymous usage data collection
       # - name: List files in path
