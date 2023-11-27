@@ -19,8 +19,8 @@ jobs:
       - name: Run Semgrep using a Container
         run: |
           docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep --config "p/golang" /src
-        env:
-          SEMGREP_SKIP_STATS: 1  # Optional: skip anonymous usage data collection
+        # env:
+        #   SEMGREP_SKIP_STATS: 1  # Optional: skip anonymous usage data collection
       # - name: List files in path
       #   run: ls -la .
       - name: Upload Test results
