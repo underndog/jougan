@@ -16,8 +16,13 @@ jobs:
         run: |
           docker pull dxa4481/trufflehog
           docker run -v ${{ github.workspace }}:/target dxa4481/trufflehog --entropy=False file:///target
-      - name: List files in path
-        run: ls -la .
+      - name: Run Semgrep using a Container
+        run: |
+          docker run --rm -v "$(pwd):/src" returntocorp/semgrep -c https://semgrep.dev/p/gosec /src
+        env:
+          SEMGREP_SKIP_STATS: 1  # Optional: skip anonymous usage data collection
+      # - name: List files in path
+      #   run: ls -la .
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:
