@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -65,38 +66,69 @@ func (id *InspectDiskHandler) DiskHandler() {
 	//os.Setenv("DOWNLOAD_FROM_S3_BUCKET", "ahihi-09262023")
 	//os.Setenv("DOWNLOAD_FROM_S3_KEY", "4def6e02f687bd0ea3544a417ac2080b88d9a3b0511419da4ad7776167fc8545")
 
-	// call get Function: getDownloadURL() in this file
-	url, fileName := id.getDownloadURL()
+	downloadType := helper.GetEnvOrDefault("DOWNLOAD_TYPE", "")
 
-	// Download
-	startDownload := time.Now()
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Error("Error downloading the file:", err)
-		return
+	var data []byte
+	var dataSize int
+	var fileName string
+
+	if downloadType == "AWS-S3-SDK" {
+		log.Debug("Download file from S3 by SDK")
+		s3Bucket, _ := os.LookupEnv("DOWNLOAD_FROM_S3_BUCKET")
+		S3Key, _ := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
+
+		startDownload := time.Now()
+		fileData, _, err := id.AWSCloud.DownloadS3FileToMemory(s3Bucket, S3Key)
+		if err != nil {
+			log.Error("Error downloading the file:", err)
+			return
+		}
+		data = fileData
+		dataSize = len(data)
+		// Extract the file name from the object key
+		fileName = filepath.Base(S3Key)
+		id.Monitoring.FileSizeMonitor(fileName, float64(dataSize))
+
+		elapsedDownload := time.Since(startDownload).Seconds()
+		downloadSpeed := float64(dataSize) / elapsedDownload
+		//fmt.Printf("Time taken to download the file: %f seconds\n", elapsedDownload)
+		//fmt.Printf("Download speed: %f KB/s\n", downloadSpeed/1024)
+		id.Monitoring.SpeedMonitor(fileName, "download", downloadSpeed, elapsedDownload)
+
+	} else {
+		// call get Function: getDownloadURL() in this file
+		url, fileName := id.getDownloadURL()
+
+		// Download
+		startDownload := time.Now()
+		resp, err := http.Get(url)
+		if err != nil {
+			log.Error("Error downloading the file:", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			log.Error("HTTP error:", resp.Status)
+			return
+		}
+
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Error("Error reading the response body:", err)
+			return
+		}
+
+		dataSize := len(data)
+		id.Monitoring.FileSizeMonitor(fileName, float64(dataSize))
+		//fmt.Println("Size of the downloaded file:", helper.FormatSize(dataSize))
+		//
+		elapsedDownload := time.Since(startDownload).Seconds()
+		downloadSpeed := float64(dataSize) / elapsedDownload
+		//fmt.Printf("Time taken to download the file: %f seconds\n", elapsedDownload)
+		//fmt.Printf("Download speed: %f KB/s\n", downloadSpeed/1024)
+		id.Monitoring.SpeedMonitor(fileName, "download", downloadSpeed, elapsedDownload)
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		log.Error("HTTP error:", resp.Status)
-		return
-	}
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Error("Error reading the response body:", err)
-		return
-	}
-
-	dataSize := len(data)
-	id.Monitoring.FileSizeMonitor(fileName, float64(dataSize))
-	//fmt.Println("Size of the downloaded file:", helper.FormatSize(dataSize))
-	//
-	elapsedDownload := time.Since(startDownload).Seconds()
-	downloadSpeed := float64(dataSize) / elapsedDownload
-	//fmt.Printf("Time taken to download the file: %f seconds\n", elapsedDownload)
-	//fmt.Printf("Download speed: %f KB/s\n", downloadSpeed/1024)
-	id.Monitoring.SpeedMonitor(fileName, "download", downloadSpeed, elapsedDownload)
 
 	filePath := helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
 

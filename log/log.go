@@ -2,17 +2,17 @@ package log
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	rotatelogs "github.com/mrnim94/file-rotatelogs"
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/labstack/gommon/log"
+	"github.com/rifflock/lfshook"
+	"github.com/sirupsen/logrus"
 )
 
 // Log global
@@ -78,7 +78,6 @@ func InitLogger(forTest bool) *MyLogger {
 				logrus.ErrorLevel: writerError,
 				logrus.WarnLevel:  writerInfo,
 				logrus.InfoLevel:  writerInfo,
-				logrus.DebugLevel: writerInfo,
 			},
 			&logrus.TextFormatter{
 				TimestampFormat:  time.RFC3339Nano,
@@ -90,7 +89,6 @@ func InitLogger(forTest bool) *MyLogger {
 	singletonLogger = &MyLogger{
 		Logger: Log,
 	}
-
 	return singletonLogger
 }
 
@@ -325,7 +323,6 @@ func (l *MyLogger) Level() log.Lvl {
 // SetLevel logger level
 func (l *MyLogger) SetLevel(v log.Lvl) {
 	l.Logger.Level = toLogrusLevel(v)
-	fmt.Println(toLogrusLevel(v))
 }
 
 // Formatter return logger formatter
@@ -376,7 +373,7 @@ func (l *MyLogger) Printj(j log.JSON) {
 
 // Debug output message of debug level
 func (l *MyLogger) Debug(i ...interface{}) {
-	l.Logger.Debug(i...)
+	l.Logger.Info(i...)
 }
 
 // Debugf output format message of debug level
@@ -490,4 +487,28 @@ func (l *MyLogger) Panicj(j log.JSON) {
 
 func (l *MyLogger) SetHeader(h string) {
 	l.Logger.Info("Not implement yet")
+}
+
+// getLogLevel returns the log.Lvl based on the environment variable value.
+func GetLogLevel(envVar string) log.Lvl {
+	envLogLevel := os.Getenv(envVar)
+	if envLogLevel == "" {
+		envLogLevel = "INFO" // default level
+	}
+
+	switch envLogLevel {
+	case "DEBUG":
+		return log.DEBUG
+	case "INFO":
+		return log.INFO
+	case "WARN":
+		return log.WARN
+	case "ERROR":
+		return log.ERROR
+	case "OFF":
+		return log.OFF
+	default:
+		log.Fatalf("Invalid log level: %s", envLogLevel)
+		return log.INFO // default level in case of failure
+	}
 }

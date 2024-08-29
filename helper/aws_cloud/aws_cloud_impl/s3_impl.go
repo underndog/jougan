@@ -1,9 +1,11 @@
 package aws_cloud_impl
 
 import (
+	"bytes"
 	"context"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"io"
 	"jougan/log"
 	"time"
 )
@@ -45,4 +47,34 @@ func (ac *AWSConfiguration) CreatePreSignedURL(bucket string, key string) (strin
 	// Output the presigned URL
 	//fmt.Println("Presigned URL:", req.URL)
 	return req.URL, nil
+}
+
+func (ac *AWSConfiguration) DownloadS3FileToMemory(bucket string, key string) ([]byte, int64, error) {
+	cfg, err := ac.accessAWSCloud()
+	if err != nil {
+		log.Error("Error creating new access key: %v", err)
+		return nil, 0, err
+	}
+	// Create an S3 client
+	client := s3.NewFromConfig(cfg)
+
+	// Get the object from S3
+	getObjectInput := &s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}
+	result, err := client.GetObject(context.TODO(), getObjectInput)
+	if err != nil {
+		log.Errorf("unable to download item from bucket %q, %v", bucket, err)
+		return nil, 0, err
+	}
+	defer result.Body.Close()
+
+	buf := new(bytes.Buffer)
+	n, err := io.Copy(buf, result.Body)
+	if err != nil {
+		log.Errorf("unable to read object into buffer, %v", err)
+		return nil, 0, err
+	}
+	return buf.Bytes(), n, nil
 }

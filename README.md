@@ -161,6 +161,18 @@ spec:
           persistentVolumeClaim:
             claimName: pvc-file-service-smb-1
 ```
+
+| Environment Variable | Description | Value Example | Purpose |
+| --- | --- | --- | --- |
+| `AWS_ACCESS_KEY_ID` | Stores the AWS Access Key ID, which is part of the credentials used to authenticate requests to AWS services. | `XXXXXGKBQ65KXXXXXX` | Identifies the IAM user or role making the request. |
+| `AWS_REGION` | Specifies the AWS region where your operations will take place. | `us-west-2` | Ensures that the application interacts with AWS services in the correct region. |
+| `AWS_SECRET_ACCESS_KEY` | Contains the AWS Secret Access Key, the second part of the credentials for authenticating requests. | `xxxxxxx//1dSxxxxxxxJ7nkIrxxxxxxx` | Works with the AWS Access Key ID to authenticate the user or service making the request. |
+| `DEBUG_LOG` | Indicates whether debug logging is enabled or not. | `'false'` | Controls whether the application should produce detailed logs for debugging. |
+| `DOWNLOAD_FROM_S3_BUCKET` | Specifies the name of the S3 bucket from which a file will be downloaded. | `ahihi-09262023` | Tells the application which S3 bucket to access for downloading the required file. |
+| `DOWNLOAD_FROM_S3_KEY` | Contains the key (or file path) of the object within the S3 bucket that needs to be downloaded. | `200MB-TESTFILE.ORG.pdf` | Identifies the exact file within the S3 bucket that the application should download. |
+| `SAVE_TO_LOCATION` | Indicates the local file path where the downloaded file from S3 should be saved. | `/app/downloaded/dynamicSize.bin` | Specifies the destination directory and filename where the downloaded content will be stored locally. |
+| `DOWNLOAD_TYPE` | (Optional) Defines the method used to download the file from S3. Options include: Default (using a Re-Signed URL) or AWS-S3-SDK (using AWS's official S3 SDK). | `Default` or `AWS-S3-SDK` | Determines whether to use a Re-Signed URL or AWS's S3 SDK for downloading the file. |
+
 ## Grafana
 
 Links: https://grafana.com/grafana/dashboards/20013-jougan-measure-disk-speed/

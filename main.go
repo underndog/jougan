@@ -18,9 +18,12 @@ import (
 func init() {
 	os.Setenv("APP_NAME", "jougan-inspects-disk")
 	logger := log.InitLogger(false)
-	if _, debugLog := os.LookupEnv("DEBUG_LOG"); debugLog {
-		logger.SetLevel(1)
+	// Check if KUBERNETES_SERVICE_HOST is set
+	if _, exists := os.LookupEnv("KUBERNETES_SERVICE_HOST"); !exists {
+		// If not in Kubernetes, set LOG_LEVEL to DEBUG
+		os.Setenv("LOG_LEVEL", "DEBUG")
 	}
+	logger.SetLevel(log.GetLogLevel("LOG_LEVEL"))
 	os.Setenv("TZ", "Asia/Ho_Chi_Minh")
 }
 
