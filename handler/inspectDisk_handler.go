@@ -142,56 +142,50 @@ func (id *InspectDiskHandler) DiskHandler() {
 		log.Error("Error creating the file:", err)
 		return
 	}
+	defer out.Close()
 
-	// Calculate SHA-256 checksum while writing the file
-	sha256Hasher := sha256.New()
-	writer := io.MultiWriter(out, sha256Hasher)
-
-	_, err = io.Copy(writer, bytes.NewReader(data))
-	out.Close()
+	// Write data to the file
+	_, err = io.Copy(out, bytes.NewReader(data))
 	if err != nil {
 		log.Error("Error saving the file:", err)
 		return
 	}
 
-	// Get the calculated SHA-256 checksum in binary
-	calculatedSHA256 := sha256Hasher.Sum(nil)
-	log.Debugf("Raw SHA-256 checksum: %x", calculatedSHA256)
+	elapsedSave := time.Since(startSave).Seconds()
+	saveSpeed := float64(dataSize) / elapsedSave
+	id.Monitoring.SpeedMonitor(fileName, "save", saveSpeed, elapsedSave)
 
-	// Convert the SHA-256 binary to a hexadecimal string
-	calculatedSHA256String := hex.EncodeToString(calculatedSHA256)
-	log.Debugf("Hexadecimal SHA-256: %s", calculatedSHA256String)
-
-	calculatedChecksumBase64 := base64.StdEncoding.EncodeToString([]byte(calculatedSHA256String))
-	log.Debugf("Calculated SHA-256 (Base64): %s", calculatedChecksumBase64)
-
+	// Checksum File
+	// Only calculate checksum if the environment variable is set
 	sha256FromEnv := helper.GetEnvOrDefault("SHA-256-CHECKSUM", "")
-
 	if sha256FromEnv != "" {
-		// Encode the UTF-8 text (sha256FromEnv) to Base64 directly
+		// Calculate the SHA-256 checksum
+		sha256Hasher := sha256.New()
+		_, err := io.Copy(sha256Hasher, bytes.NewReader(data))
+		if err != nil {
+			log.Error("Error calculating checksum:", err)
+			return
+		}
+
+		// Convert the SHA-256 binary to a hexadecimal string
+		calculatedSHA256 := sha256Hasher.Sum(nil)
+		calculatedSHA256String := hex.EncodeToString(calculatedSHA256)
+
+		// Convert to Base64
+		calculatedChecksumBase64 := base64.StdEncoding.EncodeToString([]byte(calculatedSHA256String))
+
+		log.Debugf("Calculated SHA-256 (Base64): %s", calculatedChecksumBase64)
+
+		// Encode the provided checksum from the environment variable to Base64
 		Sha256Base64FromEnv := base64.StdEncoding.EncodeToString([]byte(sha256FromEnv))
 
-		// Compare the calculated checksum with S3 checksum
+		// Compare the calculated checksum with the checksum from the environment variable
 		if calculatedChecksumBase64 == Sha256Base64FromEnv {
 			log.Debug("The file is verified. SHA-256 matches the S3 checksum.")
 		} else {
 			log.Debugf("SHA-256 mismatch! S3 checksum: %s, Calculated SHA-256: %s", Sha256Base64FromEnv, calculatedChecksumBase64)
 		}
 	}
-
-	elapsedSave := time.Since(startSave).Seconds()
-	saveSpeed := float64(dataSize) / elapsedSave
-	//fmt.Printf("Time taken to save the file: %f seconds\n", elapsedSave)
-	//fmt.Printf("Save speed: %f KB/s\n", saveSpeed/1024)
-	id.Monitoring.SpeedMonitor(fileName, "save", saveSpeed, elapsedSave)
-
-	// Check if the file exists
-	_, err = os.Stat(filePath)
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		log.Error("File does not exist:", filePath)
-		return
-	}
-	log.Debug("File is saved to", filePath)
 
 	// UploadFile
 	if downloadType == "AWS-S3-SDK" {
