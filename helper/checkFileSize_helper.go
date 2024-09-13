@@ -1,6 +1,11 @@
 package helper
 
-import "fmt"
+import (
+	"fmt"
+	"path/filepath"
+	"strings"
+	"time"
+)
 
 func FormatSize(bytes int) string {
 	const (
@@ -20,4 +25,24 @@ func FormatSize(bytes int) string {
 	default:
 		return fmt.Sprintf("%.2f GB", float64(bytes)/GB)
 	}
+}
+
+// Function to modify file name by appending timestamp in the format hhmm-ddmmyyyy
+func AppendTimestampToFile(filePath string) string {
+	// Get current time and format it as hhmm-ddmmyyyy
+	currentTime := time.Now().Format("1504-02012006")
+
+	// Get the directory and file name
+	dir := filepath.Dir(filePath)
+	baseName := filepath.Base(filePath)
+
+	// Split the file name into name and extension
+	ext := filepath.Ext(baseName)             // Get the file extension
+	name := strings.TrimSuffix(baseName, ext) // Remove the extension from the name
+
+	// Append the timestamp to the file name
+	newName := fmt.Sprintf("%s-%s%s", name, currentTime, ext)
+
+	// Return the updated path
+	return filepath.Join(dir, newName)
 }

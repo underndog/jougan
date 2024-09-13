@@ -19,6 +19,9 @@ func (pC *PrometheusConfig) SpeedMonitor(filename string, activity string, speed
 	case "delete":
 		pC.Metrics.DeleteSpeed.With(prometheus.Labels{"filename": filename}).Set(speed)
 		pC.Metrics.DeleteTime.With(prometheus.Labels{"filename": filename}).Set(time)
+	case "upload":
+		pC.Metrics.UploadSpeed.With(prometheus.Labels{"filename": filename}).Set(speed)
+		pC.Metrics.UploadTime.With(prometheus.Labels{"filename": filename}).Set(time)
 	default:
 		// Handle an unknown activity type if needed.
 		return
