@@ -42,6 +42,8 @@ func NewMonitoring(pC *PrometheusConfig) monitor.Monitoring {
 		SaveTime:      initMetric(reg, "jougan", "save_time_seconds", "Time required to save the file (unit: seconds).", []string{"filename"}),
 		DeleteSpeed:   initMetric(reg, "jougan", "delete_speed", "Delete speed (unit: B/s).", []string{"filename"}),
 		DeleteTime:    initMetric(reg, "jougan", "delete_time_seconds", "Time required to delete the file (unit: seconds).", []string{"filename"}),
+		UploadSpeed:   initMetric(reg, "jougan", "upload_speed", "Upload speed (unit: B/s).", []string{"filename"}),
+		UploadTime:    initMetric(reg, "jougan", "upload_time_seconds", "Time required to upload the file (unit: seconds).", []string{"filename"}),
 	}
 	return &PrometheusConfig{
 		Registry: reg,

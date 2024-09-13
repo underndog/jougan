@@ -9,6 +9,7 @@ type Metrics struct {
 	DownloadTime, DownloadSpeed *prometheus.GaugeVec
 	SaveTime, SaveSpeed         *prometheus.GaugeVec
 	DeleteTime, DeleteSpeed     *prometheus.GaugeVec
+	UploadTime, UploadSpeed     *prometheus.GaugeVec
 }
 
 type MetricResponse struct {
@@ -19,4 +20,6 @@ type MetricResponse struct {
 	SaveSpeed     float64 `json:"saveSpeed,omitempty"`
 	DeleteTime    float64 `json:"deleteTimestring,omitempty"`
 	DeleteSpeed   float64 `json:"deleteSpeed,omitempty"`
+	UploadTime    float64 `json:"uploadTimestring,omitempty"`
+	UploadSpeed   float64 `json:"uploadSpeed,omitempty"`
 }

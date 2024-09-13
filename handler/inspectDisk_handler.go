@@ -2,6 +2,9 @@ package handler
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"io"
@@ -139,11 +142,41 @@ func (id *InspectDiskHandler) DiskHandler() {
 		log.Error("Error creating the file:", err)
 		return
 	}
-	_, err = io.Copy(out, bytes.NewReader(data))
+
+	// Calculate SHA-256 checksum while writing the file
+	sha256Hasher := sha256.New()
+	writer := io.MultiWriter(out, sha256Hasher)
+
+	_, err = io.Copy(writer, bytes.NewReader(data))
 	out.Close()
 	if err != nil {
 		log.Error("Error saving the file:", err)
 		return
+	}
+
+	// Get the calculated SHA-256 checksum in binary
+	calculatedSHA256 := sha256Hasher.Sum(nil)
+	log.Debugf("Raw SHA-256 checksum: %x", calculatedSHA256)
+
+	// Convert the SHA-256 binary to a hexadecimal string
+	calculatedSHA256String := hex.EncodeToString(calculatedSHA256)
+	log.Debugf("Hexadecimal SHA-256: %s", calculatedSHA256String)
+
+	calculatedChecksumBase64 := base64.StdEncoding.EncodeToString([]byte(calculatedSHA256String))
+	log.Debugf("Calculated SHA-256 (Base64): %s", calculatedChecksumBase64)
+
+	sha256FromEnv := helper.GetEnvOrDefault("SHA-256-CHECKSUM", "")
+
+	if sha256FromEnv != "" {
+		// Encode the UTF-8 text (sha256FromEnv) to Base64 directly
+		Sha256Base64FromEnv := base64.StdEncoding.EncodeToString([]byte(sha256FromEnv))
+
+		// Compare the calculated checksum with S3 checksum
+		if calculatedChecksumBase64 == Sha256Base64FromEnv {
+			log.Debug("The file is verified. SHA-256 matches the S3 checksum.")
+		} else {
+			log.Debugf("SHA-256 mismatch! S3 checksum: %s, Calculated SHA-256: %s", Sha256Base64FromEnv, calculatedChecksumBase64)
+		}
 	}
 
 	elapsedSave := time.Since(startSave).Seconds()
@@ -159,6 +192,22 @@ func (id *InspectDiskHandler) DiskHandler() {
 		return
 	}
 	log.Debug("File is saved to", filePath)
+
+	// UploadFile
+	if downloadType == "AWS-S3-SDK" {
+		s3Bucket, _ := os.LookupEnv("DOWNLOAD_FROM_S3_BUCKET")
+		S3Key, _ := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
+		startUpload := time.Now()
+		new_S3key := helper.AppendTimestampToFile(S3Key)
+		err = id.AWSCloud.UploadFileToS3(filePath, s3Bucket, new_S3key)
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			log.Error(err)
+			return
+		}
+		elapsedUpload := time.Since(startUpload).Seconds()
+		uploadSpeed := float64(dataSize) / elapsedUpload
+		id.Monitoring.SpeedMonitor(fileName, "upload", uploadSpeed, elapsedUpload)
+	}
 
 	// Delete
 	startDelete := time.Now()
