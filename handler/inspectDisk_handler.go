@@ -100,7 +100,8 @@ func (id *InspectDiskHandler) DiskHandler() {
 
 	} else {
 		// call get Function: getDownloadURL() in this file
-		url, fileName := id.getDownloadURL()
+		url, fetchedFileName := id.getDownloadURL()
+		fileName = fetchedFileName // Set fileName from getDownloadURL
 
 		// Download
 		startDownload := time.Now()
@@ -116,7 +117,7 @@ func (id *InspectDiskHandler) DiskHandler() {
 			return
 		}
 
-		data, err := io.ReadAll(resp.Body)
+		data, err = io.ReadAll(resp.Body)
 		if err != nil {
 			log.Error("Error reading the response body:", err)
 			return
@@ -142,10 +143,10 @@ func (id *InspectDiskHandler) DiskHandler() {
 		log.Error("Error creating the file:", err)
 		return
 	}
-	defer out.Close()
-
+	log.Debugf("Data size before saving: %d bytes", len(data))
 	// Write data to the file
 	_, err = io.Copy(out, bytes.NewReader(data))
+	out.Close() // Done use defer out.Close() Because it will conflict delete file
 	if err != nil {
 		log.Error("Error saving the file:", err)
 		return
@@ -205,16 +206,17 @@ func (id *InspectDiskHandler) DiskHandler() {
 
 	// Delete
 	startDelete := time.Now()
-	err = os.Remove(filePath)
-	if err != nil {
-		log.Error("Error deleting the file:", err)
-		return
-	}
+	//err = os.Remove(filePath)
+	//if err != nil {
+	//	log.Error("Error deleting the file:", err)
+	//	return
+	//}
 	elapsedDelete := time.Since(startDelete).Seconds()
 	deleteSpeed := float64(dataSize) / elapsedDelete
 	//fmt.Printf("Time taken to delete the file: %f seconds\n", elapsedDelete)
 	//fmt.Printf("Delete speed: %f KB/s\n", deleteSpeed/1024)
 	id.Monitoring.SpeedMonitor(fileName, "delete", deleteSpeed, elapsedDelete)
+	log.Debug("Completed delete file: ", filePath)
 }
 
 func downloadFile(download model.DownloadFile) (model.MetricResponse, error) {
@@ -308,6 +310,7 @@ func (id *InspectDiskHandler) getDownloadURL() (string, string) {
 		log.Error(err)
 		return "", ""
 	}
-
+	log.Debug(presignedURL)
 	return presignedURL, S3Key
+
 }
