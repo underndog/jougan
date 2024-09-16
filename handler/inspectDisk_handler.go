@@ -206,11 +206,11 @@ func (id *InspectDiskHandler) DiskHandler() {
 
 	// Delete
 	startDelete := time.Now()
-	//err = os.Remove(filePath)
-	//if err != nil {
-	//	log.Error("Error deleting the file:", err)
-	//	return
-	//}
+	err = os.Remove(filePath)
+	if err != nil {
+		log.Error("Error deleting the file:", err)
+		return
+	}
 	elapsedDelete := time.Since(startDelete).Seconds()
 	deleteSpeed := float64(dataSize) / elapsedDelete
 	//fmt.Printf("Time taken to delete the file: %f seconds\n", elapsedDelete)
