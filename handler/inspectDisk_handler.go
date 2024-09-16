@@ -123,7 +123,7 @@ func (id *InspectDiskHandler) DiskHandler() {
 			return
 		}
 
-		dataSize := len(data)
+		dataSize = len(data)
 		id.Monitoring.FileSizeMonitor(fileName, float64(dataSize))
 		//fmt.Println("Size of the downloaded file:", helper.FormatSize(dataSize))
 		//
