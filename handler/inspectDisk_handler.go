@@ -17,6 +17,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -189,7 +190,11 @@ func (id *InspectDiskHandler) DiskHandler() {
 	}
 
 	// UploadFile
-	if downloadType == "AWS-S3-SDK" {
+	uploadFileToS3, err := strconv.ParseBool(helper.GetEnvOrDefault("UPLOAD_FILE_TO_S3", "false"))
+	if err != nil {
+		log.Error(err)
+	}
+	if uploadFileToS3 == true {
 		s3Bucket, _ := os.LookupEnv("DOWNLOAD_FROM_S3_BUCKET")
 		S3Key, _ := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
 		startUpload := time.Now()
