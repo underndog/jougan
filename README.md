@@ -171,9 +171,11 @@ spec:
 | `DOWNLOAD_FROM_S3_BUCKET` | Specifies the name of the S3 bucket from which a file will be downloaded. | `ahihi-09262023` | Tells the application which S3 bucket to access for downloading the required file. |
 | `DOWNLOAD_FROM_S3_KEY` | Contains the key (or file path) of the object within the S3 bucket that needs to be downloaded. | `200MB-TESTFILE.ORG.pdf` | Identifies the exact file within the S3 bucket that the application should download. |
 | `SAVE_TO_LOCATION` | Indicates the local file path where the downloaded file from S3 should be saved. | `/app/downloaded/dynamicSize.bin` | Specifies the destination directory and filename where the downloaded content will be stored locally. |
-| `DOWNLOAD_TYPE` | **(Optional)** Defines the method used to download the file from S3. Options include: Default (using a Re-Signed URL only for measuring download) or AWS-S3-SDK (using AWS's official S3 SDK for measuring download and upload to S3). | `Default` or `AWS-S3-SDK` | Determines whether to use a Re-Signed URL or AWS's S3 SDK for downloading the file. |
+| `DOWNLOAD_TYPE` | **(Optional)** Defines the method used to download the file from S3. Options include: Default (using a Re-Signed URL only for measuring download) or AWS-S3-SDK (using AWS's official S3 SDK for measuring download). | `Default` or `AWS-S3-SDK` | Determines whether to use a Re-Signed URL or AWS's S3 SDK for downloading the file. |
+| `UPLOAD_FILE_TO_S3` | **(Optional)** Measure file uploads to S3. | `false` or `true`. Default is `false` | `UPLOAD_FILE_TO_S3` lets you enable or disable the measurement of file uploads to S3, including upload speed and time. |
 | `PART_SIZE_MB` | **(Optional)** PART\_SIZE is an environment variable that specifies the size of each chunk (part) of a file to be downloaded from S3. The size is expressed in megabytes (MB). | `5` | PART\_SIZE allows you to control the size of each download chunk in MB. This helps optimize download speed and efficiency by enabling the concurrent download of smaller parts of a large file. If not set, the entire file is downloaded in a single request. |
 | `SHA-256-CHECKSUM` | **(Optional)** Include the `SHA-256-CHECKSUM` of the file; Jougan will verify it after download. | `dfb81a5c3f3ae4cd6bc469390e3668f2a8f3e8546f1864719673da0d8b058237` | Ensure your file remains unchanged after downloading. |
+
 
 ## Grafana
 

@@ -190,7 +190,7 @@ func (id *InspectDiskHandler) DiskHandler() {
 	}
 
 	// UploadFile
-	uploadFileToS3, err := strconv.ParseBool(helper.GetEnvOrDefault("UPLOAD_FILE_TO_S3", "true"))
+	uploadFileToS3, err := strconv.ParseBool(helper.GetEnvOrDefault("UPLOAD_FILE_TO_S3", "false"))
 	if err != nil {
 		log.Error(err)
 	}
