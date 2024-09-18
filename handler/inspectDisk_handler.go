@@ -135,7 +135,17 @@ func (id *InspectDiskHandler) DiskHandler() {
 		id.Monitoring.SpeedMonitor(fileName, "download", downloadSpeed, elapsedDownload)
 	}
 
-	filePath := helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
+	var filePath string
+	randomFilename, err := strconv.ParseBool(helper.GetEnvOrDefault("RANDOM_FILENAME_TO_SAVE_LOCAL", "false"))
+	if err != nil {
+		log.Error(err)
+	}
+	if randomFilename == true {
+		filePath = helper.AppendRandomToFilename(helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin"))
+	} else {
+		filePath = helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
+	}
+	log.Debug("File Patch to save local is: ", filePath)
 
 	//// Save
 	startSave := time.Now()

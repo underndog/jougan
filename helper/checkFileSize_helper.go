@@ -46,3 +46,23 @@ func AppendTimestampToFile(filePath string) string {
 	// Return the updated path
 	return filepath.Join(dir, newName)
 }
+
+// Generate a unique file path for each pod using a random value (e.g., timestamp or UUID)
+func AppendRandomToFilename(filePath string) string {
+	// Get current time and format it as hhmm-ddmmyyyy
+	randomValue := time.Now().UnixNano() // Or use a UUID generator if available
+
+	// Get the directory and file name
+	dir := filepath.Dir(filePath)
+	baseName := filepath.Base(filePath)
+
+	// Split the file name into name and extension
+	ext := filepath.Ext(baseName)             // Get the file extension
+	name := strings.TrimSuffix(baseName, ext) // Remove the extension from the name
+
+	// Append the timestamp to the file name
+	newName := fmt.Sprintf("%s-%d%s", name, randomValue, ext)
+
+	// Return the updated path
+	return filepath.Join(dir, newName)
+}
