@@ -175,6 +175,7 @@ spec:
 | `UPLOAD_FILE_TO_S3` | **(Optional)** Measure file uploads to S3. | `false` or `true`. Default is `false` | `UPLOAD_FILE_TO_S3` lets you enable or disable the measurement of file uploads to S3, including upload speed and time. |
 | `PART_SIZE_MB` | **(Optional)** PART\_SIZE is an environment variable that specifies the size of each chunk (part) of a file to be downloaded from S3. The size is expressed in megabytes (MB). | `5` | PART\_SIZE allows you to control the size of each download chunk in MB. This helps optimize download speed and efficiency by enabling the concurrent download of smaller parts of a large file. If not set, the entire file is downloaded in a single request. |
 | `SHA-256-CHECKSUM` | **(Optional)** Include the `SHA-256-CHECKSUM` of the file; Jougan will verify it after download. | `dfb81a5c3f3ae4cd6bc469390e3668f2a8f3e8546f1864719673da0d8b058237` | Ensure your file remains unchanged after downloading. |
+| `RANDOM_FILENAME_TO_SAVE_LOCAL` | **(Optional)** When true, Jougan will add a extra random string to the file name before saving it locally. | `false` or `true`. Default is `false` | Creating multiple pods or jougans to download the same file from S3 can lead to issues with saving and deleting the file locally. |
 
 
 ## Grafana
