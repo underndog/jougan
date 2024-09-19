@@ -195,7 +195,7 @@ func (id *InspectDiskHandler) DiskHandler() {
 		if calculatedChecksumBase64 == Sha256Base64FromEnv {
 			log.Debug("The file is verified. SHA-256 matches the S3 checksum.")
 		} else {
-			log.Debugf("SHA-256 mismatch! S3 checksum: %s, Calculated SHA-256: %s", Sha256Base64FromEnv, calculatedChecksumBase64)
+			log.Warnf("SHA-256 mismatch! S3 checksum: %s, Calculated SHA-256: %s", Sha256Base64FromEnv, calculatedChecksumBase64)
 		}
 	}
 
@@ -208,7 +208,7 @@ func (id *InspectDiskHandler) DiskHandler() {
 		s3Bucket, _ := os.LookupEnv("DOWNLOAD_FROM_S3_BUCKET")
 		S3Key, _ := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
 		startUpload := time.Now()
-		new_S3key := helper.AppendTimestampToFile(S3Key)
+		new_S3key := helper.AppendRandomToFilename(S3Key)
 		err = id.AWSCloud.UploadFileToS3(filePath, s3Bucket, new_S3key)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			log.Error(err)

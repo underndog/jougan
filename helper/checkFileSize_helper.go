@@ -1,7 +1,9 @@
 package helper
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"path/filepath"
 	"strings"
 	"time"
@@ -27,30 +29,38 @@ func FormatSize(bytes int) string {
 	}
 }
 
-// Function to modify file name by appending timestamp in the format hhmm-ddmmyyyy
-func AppendTimestampToFile(filePath string) string {
-	// Get current time and format it as hhmm-ddmmyyyy
-	currentTime := time.Now().Format("1504-02012006")
+const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+="
 
-	// Get the directory and file name
-	dir := filepath.Dir(filePath)
-	baseName := filepath.Base(filePath)
+// Function to generate a random string of length n
+func randomString(n int) string {
+	// Slice to hold the generated runes
+	result := make([]rune, n)
+	// Convert randomStringSource to a slice of runes
+	sourceRunes := []rune(randomStringSource)
+	// Get the length of the source runes
+	sourceLen := big.NewInt(int64(len(sourceRunes)))
 
-	// Split the file name into name and extension
-	ext := filepath.Ext(baseName)             // Get the file extension
-	name := strings.TrimSuffix(baseName, ext) // Remove the extension from the name
+	// Loop to generate each random character
+	for i := range result {
+		// Generate a random index within the bounds of sourceRunes
+		randomIndex, err := rand.Int(rand.Reader, sourceLen)
+		if err != nil {
+			panic(err) // Handle error, it shouldn't happen often
+		}
+		// Assign the random rune to the result
+		result[i] = sourceRunes[randomIndex.Int64()]
+	}
 
-	// Append the timestamp to the file name
-	newName := fmt.Sprintf("%s-%s%s", name, currentTime, ext)
-
-	// Return the updated path
-	return filepath.Join(dir, newName)
+	// Return the generated string
+	return string(result)
 }
 
 // Generate a unique file path for each pod using a random value (e.g., timestamp or UUID)
 func AppendRandomToFilename(filePath string) string {
 	// Get current time and format it as hhmm-ddmmyyyy
-	randomValue := time.Now().UnixNano() // Or use a UUID generator if available
+	currentTime := time.Now().Format("150405-02-01-2006")
+	// Generate a random string of length 8
+	randomStr := randomString(8)
 
 	// Get the directory and file name
 	dir := filepath.Dir(filePath)
@@ -61,7 +71,7 @@ func AppendRandomToFilename(filePath string) string {
 	name := strings.TrimSuffix(baseName, ext) // Remove the extension from the name
 
 	// Append the timestamp to the file name
-	newName := fmt.Sprintf("%s-%d%s", name, randomValue, ext)
+	newName := fmt.Sprintf("%s-%s-%s%s", name, currentTime, randomStr, ext)
 
 	// Return the updated path
 	return filepath.Join(dir, newName)
