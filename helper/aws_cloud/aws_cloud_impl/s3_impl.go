@@ -56,6 +56,132 @@ func (ac *AWSConfiguration) CreatePreSignedURL(bucket string, key string) (strin
 	return req.URL, nil
 }
 
+func (ac *AWSConfiguration) DownloadS3FileToDisk(bucket string, key string, localFilePath string) (int64, error) {
+	cfg, err := ac.accessAWSCloud()
+	if err != nil {
+		log.Error("Error creating new access key: %v", err)
+		return 0, err
+	}
+	// Create an S3 client
+	client := s3.NewFromConfig(cfg)
+
+	// Get file size
+	headObjectOutput, err := client.HeadObject(context.TODO(), &s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return 0, err
+	}
+	fileSize := *headObjectOutput.ContentLength
+
+	// Check for PART_SIZE environment variable
+	partSizeStr := os.Getenv("PART_SIZE_MB")
+	var partSize int64
+	if partSizeStr != "" {
+		log.Debug("PART_SIZE_MB env: " + partSizeStr)
+		partSizeMB, err := strconv.ParseInt(partSizeStr, 10, 64)
+		if err != nil {
+			log.Errorf("Invalid PART_SIZE value: %v", err)
+			return 0, err
+		}
+		partSize = partSizeMB * 1024 * 1024 // Convert MB to bytes
+	}
+
+	// Open the local file for writing
+	localFile, err := os.Create(localFilePath)
+	if err != nil {
+		return 0, err
+	}
+	defer localFile.Close()
+
+	// If partSize is not set, download the entire file in one go
+	if partSize <= 0 {
+		getObjectInput := &s3.GetObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(key),
+		}
+		result, err := client.GetObject(context.TODO(), getObjectInput)
+		if err != nil {
+			log.Errorf("Unable to download item from bucket %q, %v", bucket, err)
+			return 0, err
+		}
+		defer result.Body.Close()
+
+		n, err := io.Copy(localFile, result.Body)
+		if err != nil {
+			log.Errorf("Unable to write object to file, %v", err)
+			return 0, err
+		}
+		return n, nil
+	}
+
+	// Calculate the number of parts
+	numParts := (fileSize + partSize - 1) / partSize
+
+	// Download parts concurrently
+	var wg sync.WaitGroup
+	errCh := make(chan error, numParts)
+	var totalBytesWritten int64
+
+	for i := int64(0); i < numParts; i++ {
+		start := i * partSize
+		end := start + partSize - 1
+		if end > fileSize-1 {
+			end = fileSize - 1
+		}
+
+		wg.Add(1)
+		go func(start, end int64) {
+			defer wg.Done()
+
+			getObjectInput := &s3.GetObjectInput{
+				Bucket: aws.String(bucket),
+				Key:    aws.String(key),
+				Range:  aws.String(fmt.Sprintf("bytes=%d-%d", start, end)),
+			}
+
+			result, err := client.GetObject(context.TODO(), getObjectInput)
+			if err != nil {
+				log.Errorf("Unable to download part from bucket %q, %v", bucket, err)
+				errCh <- err
+				return
+			}
+			defer result.Body.Close()
+
+			// Create a temporary buffer to read the part
+			partBuffer := make([]byte, end-start+1)
+			_, err = io.ReadFull(result.Body, partBuffer)
+			if err != nil {
+				log.Errorf("Unable to read object part into buffer, %v", err)
+				errCh <- err
+				return
+			}
+
+			// Write the part to the correct position in the file
+			_, err = localFile.WriteAt(partBuffer, start)
+			if err != nil {
+				log.Errorf("Unable to write part to file, %v", err)
+				errCh <- err
+				return
+			}
+
+			// Update total bytes written
+			totalBytesWritten += int64(len(partBuffer))
+		}(start, end)
+	}
+
+	// Wait for all parts to be downloaded
+	wg.Wait()
+	close(errCh)
+
+	if len(errCh) > 0 {
+		return 0, <-errCh // return the first error encountered
+	}
+
+	return totalBytesWritten, nil
+}
+
 func (ac *AWSConfiguration) DownloadS3FileToMemory(bucket string, key string) ([]byte, int64, error) {
 	cfg, err := ac.accessAWSCloud()
 	if err != nil {

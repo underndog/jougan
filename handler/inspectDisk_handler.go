@@ -73,8 +73,10 @@ func (id *InspectDiskHandler) DiskHandler() {
 	downloadType := helper.GetEnvOrDefault("DOWNLOAD_TYPE", "")
 
 	var data []byte
-	var dataSize int
+	var dataSize int64
 	var fileName string
+	download2 := helper.GetEnvOrDefault("DOWNLOAD_2", "RAM")
+	downloadFilePath := helper.AppendRandomToFilename(helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin"))
 
 	if downloadType == "AWS-S3-SDK" {
 		log.Debug("Download file from S3 by SDK")
@@ -82,13 +84,27 @@ func (id *InspectDiskHandler) DiskHandler() {
 		S3Key, _ := os.LookupEnv("DOWNLOAD_FROM_S3_KEY")
 
 		startDownload := time.Now()
-		fileData, _, err := id.AWSCloud.DownloadS3FileToMemory(s3Bucket, S3Key)
-		if err != nil {
-			log.Error("Error downloading the file:", err)
-			return
+
+		if download2 == "DISK" {
+			log.Debug("Download file then save to Disk(Volume)")
+			fileSize, err := id.AWSCloud.DownloadS3FileToDisk(s3Bucket, S3Key, downloadFilePath)
+			if err != nil {
+				log.Error("Error downloading the file:", err)
+				return
+			}
+			data = nil
+			dataSize = fileSize
+		} else {
+			log.Debug("Download file then save to RAM(Volume)")
+			fileData, fileSize, err := id.AWSCloud.DownloadS3FileToMemory(s3Bucket, S3Key)
+			if err != nil {
+				log.Error("Error downloading the file:", err)
+				return
+			}
+			data = fileData
+			dataSize = fileSize
 		}
-		data = fileData
-		dataSize = len(data)
+
 		// Extract the file name from the object key
 		fileName = filepath.Base(S3Key)
 		id.Monitoring.FileSizeMonitor(fileName, float64(dataSize))
@@ -124,7 +140,7 @@ func (id *InspectDiskHandler) DiskHandler() {
 			return
 		}
 
-		dataSize = len(data)
+		dataSize = int64(len(data))
 		id.Monitoring.FileSizeMonitor(fileName, float64(dataSize))
 		//fmt.Println("Size of the downloaded file:", helper.FormatSize(dataSize))
 		//
@@ -136,36 +152,41 @@ func (id *InspectDiskHandler) DiskHandler() {
 	}
 
 	var filePath string
-	randomFilename, err := strconv.ParseBool(helper.GetEnvOrDefault("RANDOM_FILENAME_TO_SAVE_LOCAL", "false"))
-	if err != nil {
-		log.Error(err)
-	}
-	if randomFilename == true {
-		filePath = helper.AppendRandomToFilename(helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin"))
+
+	if download2 == "RAM" {
+		randomFilename, err := strconv.ParseBool(helper.GetEnvOrDefault("RANDOM_FILENAME_TO_SAVE_LOCAL", "false"))
+		if err != nil {
+			log.Error(err)
+		}
+		if randomFilename == true {
+			filePath = helper.AppendRandomToFilename(helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin"))
+		} else {
+			filePath = helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
+		}
+		log.Debug("File Patch to save local is: ", filePath)
+
+		//// Save
+		startSave := time.Now()
+		out, err := os.Create(filePath)
+		if err != nil {
+			log.Error("Error creating the file:", err)
+			return
+		}
+		log.Debugf("Data size before saving: %d bytes", len(data))
+		// Write data to the file
+		_, err = io.Copy(out, bytes.NewReader(data))
+		out.Close() // Done use defer out.Close() Because it will conflict delete file
+		if err != nil {
+			log.Error("Error saving the file:", err)
+			return
+		}
+
+		elapsedSave := time.Since(startSave).Seconds()
+		saveSpeed := float64(dataSize) / elapsedSave
+		id.Monitoring.SpeedMonitor(fileName, "save", saveSpeed, elapsedSave)
 	} else {
-		filePath = helper.GetEnvOrDefault("SAVE_TO_LOCATION", "save/dynamicSize.bin")
+		filePath = downloadFilePath
 	}
-	log.Debug("File Patch to save local is: ", filePath)
-
-	//// Save
-	startSave := time.Now()
-	out, err := os.Create(filePath)
-	if err != nil {
-		log.Error("Error creating the file:", err)
-		return
-	}
-	log.Debugf("Data size before saving: %d bytes", len(data))
-	// Write data to the file
-	_, err = io.Copy(out, bytes.NewReader(data))
-	out.Close() // Done use defer out.Close() Because it will conflict delete file
-	if err != nil {
-		log.Error("Error saving the file:", err)
-		return
-	}
-
-	elapsedSave := time.Since(startSave).Seconds()
-	saveSpeed := float64(dataSize) / elapsedSave
-	id.Monitoring.SpeedMonitor(fileName, "save", saveSpeed, elapsedSave)
 
 	// Checksum File
 	// Only calculate checksum if the environment variable is set
