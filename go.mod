@@ -15,7 +15,7 @@ require (
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/swaggo/echo-swagger v1.4.1
-	github.com/swaggo/swag v1.16.3
+	github.com/swaggo/swag v1.16.4
 )
 
 require (
