@@ -178,12 +178,18 @@ spec:
 | `RANDOM_FILENAME_TO_SAVE_LOCAL` | **(Optional)** When true, Jougan will add a extra random string to the file name before saving it locally. | `false` or `true`. Default is `false` | Creating multiple pods or jougans to download the same file from S3 can lead to issues with saving and deleting the file locally. |
 
 
-
 ## Grafana
 
 Links: https://grafana.com/grafana/dashboards/20013-jougan-measure-disk-speed/
 
 <a href="https://nimtechnology.com/2023/07/02/jougan-project/" target="_blank"><img alt="JouGan" src="https://grafana.com/api/dashboards/20013/images/15212/image"></a>
+
+## Quay.IO
+We also provide Jougan's image via Quay:   
+
+```
+quay.io/underndog/jougan
+```
 
 ## Create Helm Chart
 helm package ./helm-chart/jougan --destination ./helm-chart/   
