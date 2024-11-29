@@ -17,7 +17,7 @@ JouGan can download the file you request. I calculate and report:
 
 Add repository:   
 ```shell
-helm repo add jougan https://mrnim94.github.io/jougan
+helm repo add jougan https://underndog.github.io/jougan
 ```
 
 Install chart:
