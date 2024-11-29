@@ -132,7 +132,7 @@ spec:
               value: 200MB-TESTFILE.ORG.pdf
             - name: SAVE_TO_LOCATION
               value: /app/downloaded/dynamicSize.bin
-          image: 'mrnim94/jougan:v0.0.3'
+          image: 'quay.io/underndog/jougan'
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
@@ -184,6 +184,13 @@ Links: https://grafana.com/grafana/dashboards/20013-jougan-measure-disk-speed/
 
 <a href="https://nimtechnology.com/2023/07/02/jougan-project/" target="_blank"><img alt="JouGan" src="https://grafana.com/api/dashboards/20013/images/15212/image"></a>
 
+## Quay.IO
+We also provide Jougan's image via Quay:   
+
+```
+quay.io/underndog/jougan
+```
+
 ## Create Helm Chart
 helm package ./helm-chart/jougan --destination ./helm-chart/   
-helm repo index . --url https://mrnim94.github.io/jougan   
+helm repo index . --url https://underndog.github.io/jougan   
