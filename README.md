@@ -17,7 +17,7 @@ JouGan can download the file you request. I calculate and report:
 
 Add repository:   
 ```shell
-helm repo add jougan https://mrnim94.github.io/jougan
+helm repo add jougan https://underndog.github.io/jougan
 ```
 
 Install chart:
@@ -132,7 +132,7 @@ spec:
               value: 200MB-TESTFILE.ORG.pdf
             - name: SAVE_TO_LOCATION
               value: /app/downloaded/dynamicSize.bin
-          image: 'mrnim94/jougan:v0.0.3'
+          image: 'quay.io/underndog/jougan'
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
@@ -176,7 +176,7 @@ spec:
 | `PART_SIZE_MB` | **(Optional)** PART\_SIZE is an environment variable that specifies the size of each chunk (part) of a file to be downloaded from S3. The size is expressed in megabytes (MB).                                        | `5`                                                                | PART\_SIZE allows you to control the size of each download chunk in MB. This helps optimize download speed and efficiency by enabling the concurrent download of smaller parts of a large file. If not set, the entire file is downloaded in a single request. |
 | `SHA-256-CHECKSUM` | **(Optional)** Include the `SHA-256-CHECKSUM` of the file; Jougan will verify it after download.                                                                                                                      | `dfb81a5c3f3ae4cd6bc469390e3668f2a8f3e8546f1864719673da0d8b058237` | Ensure your file remains unchanged after downloading. |
 | `RANDOM_FILENAME_TO_SAVE_LOCAL` | **(Optional)** When true, Jougan will add a extra random string to the file name before saving it locally.                                                                                                            | `false` or `true`. Default is `false`                              | Creating multiple pods or jougans to download the same file from S3 can lead to issues with saving and deleting the file locally. |
-| `DOWNLOAD_2` | **(Optional)** You can download the file directly to disk instead of first downloading it to RAM and then writing it to disk.                                                                                         | `RAM` or `DISK`. Default is `RAM`                                  | They want to measure the direct download speed to disk instead of using the download speed via RAM to avoid disk bottlenecking. |
+| `DOWNLOAD_2` | **(Optional)** You can download the file directly to disk instead of first downloading it to RAM and then writing it to disk.    
 
 
 ## Grafana
@@ -185,6 +185,13 @@ Links: https://grafana.com/grafana/dashboards/20013-jougan-measure-disk-speed/
 
 <a href="https://nimtechnology.com/2023/07/02/jougan-project/" target="_blank"><img alt="JouGan" src="https://grafana.com/api/dashboards/20013/images/15212/image"></a>
 
+## Quay.IO
+We also provide Jougan's image via Quay:   
+
+```
+quay.io/underndog/jougan
+```
+
 ## Create Helm Chart
 helm package ./helm-chart/jougan --destination ./helm-chart/   
-helm repo index . --url https://mrnim94.github.io/jougan   
+helm repo index . --url https://underndog.github.io/jougan   
