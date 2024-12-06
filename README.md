@@ -17,7 +17,7 @@ JouGan can download the file you request. I calculate and report:
 
 Add repository:   
 ```shell
-helm repo add jougan https://underndog.github.io/jougan
+helm repo add jougan https://mrnim94.github.io/jougan
 ```
 
 Install chart:
@@ -132,7 +132,7 @@ spec:
               value: 200MB-TESTFILE.ORG.pdf
             - name: SAVE_TO_LOCATION
               value: /app/downloaded/dynamicSize.bin
-          image: 'quay.io/underndog/jougan'
+          image: 'mrnim94/jougan:v0.0.3'
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
@@ -162,20 +162,21 @@ spec:
             claimName: pvc-file-service-smb-1
 ```
 
-| Environment Variable | Description | Value Example | Purpose |
-| --- | --- | --- | --- |
-| `AWS_ACCESS_KEY_ID` | Stores the AWS Access Key ID, which is part of the credentials used to authenticate requests to AWS services. | `XXXXXGKBQ65KXXXXXX` | Identifies the IAM user or role making the request. |
-| `AWS_REGION` | Specifies the AWS region where your operations will take place. | `us-west-2` | Ensures that the application interacts with AWS services in the correct region. |
-| `AWS_SECRET_ACCESS_KEY` | Contains the AWS Secret Access Key, the second part of the credentials for authenticating requests. | `xxxxxxx//1dSxxxxxxxJ7nkIrxxxxxxx` | Works with the AWS Access Key ID to authenticate the user or service making the request. |
-| `DEBUG_LOG` | Indicates whether debug logging is enabled or not. | `'false'` | Controls whether the application should produce detailed logs for debugging. |
-| `DOWNLOAD_FROM_S3_BUCKET` | Specifies the name of the S3 bucket from which a file will be downloaded. | `ahihi-09262023` | Tells the application which S3 bucket to access for downloading the required file. |
-| `DOWNLOAD_FROM_S3_KEY` | Contains the key (or file path) of the object within the S3 bucket that needs to be downloaded. | `200MB-TESTFILE.ORG.pdf` | Identifies the exact file within the S3 bucket that the application should download. |
-| `SAVE_TO_LOCATION` | Indicates the local file path where the downloaded file from S3 should be saved. | `/app/downloaded/dynamicSize.bin` | Specifies the destination directory and filename where the downloaded content will be stored locally. |
-| `DOWNLOAD_TYPE` | **(Optional)** Defines the method used to download the file from S3. Options include: Default (using a Re-Signed URL only for measuring download) or AWS-S3-SDK (using AWS's official S3 SDK for measuring download). | `Default` or `AWS-S3-SDK` | Determines whether to use a Re-Signed URL or AWS's S3 SDK for downloading the file. |
-| `UPLOAD_FILE_TO_S3` | **(Optional)** Measure file uploads to S3. | `false` or `true`. Default is `false` | `UPLOAD_FILE_TO_S3` lets you enable or disable the measurement of file uploads to S3, including upload speed and time. |
-| `PART_SIZE_MB` | **(Optional)** PART\_SIZE is an environment variable that specifies the size of each chunk (part) of a file to be downloaded from S3. The size is expressed in megabytes (MB). | `5` | PART\_SIZE allows you to control the size of each download chunk in MB. This helps optimize download speed and efficiency by enabling the concurrent download of smaller parts of a large file. If not set, the entire file is downloaded in a single request. |
-| `SHA-256-CHECKSUM` | **(Optional)** Include the `SHA-256-CHECKSUM` of the file; Jougan will verify it after download. | `dfb81a5c3f3ae4cd6bc469390e3668f2a8f3e8546f1864719673da0d8b058237` | Ensure your file remains unchanged after downloading. |
-| `RANDOM_FILENAME_TO_SAVE_LOCAL` | **(Optional)** When true, Jougan will add a extra random string to the file name before saving it locally. | `false` or `true`. Default is `false` | Creating multiple pods or jougans to download the same file from S3 can lead to issues with saving and deleting the file locally. |
+| Environment Variable | Description                                                                                                                                                                                                           | Value Example                                                      | Purpose |
+| --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------| --- |
+| `AWS_ACCESS_KEY_ID` | Stores the AWS Access Key ID, which is part of the credentials used to authenticate requests to AWS services.                                                                                                         | `XXXXXGKBQ65KXXXXXX`                                               | Identifies the IAM user or role making the request. |
+| `AWS_REGION` | Specifies the AWS region where your operations will take place.                                                                                                                                                       | `us-west-2`                                                        | Ensures that the application interacts with AWS services in the correct region. |
+| `AWS_SECRET_ACCESS_KEY` | Contains the AWS Secret Access Key, the second part of the credentials for authenticating requests.                                                                                                                   | `xxxxxxx//1dSxxxxxxxJ7nkIrxxxxxxx`                                 | Works with the AWS Access Key ID to authenticate the user or service making the request. |
+| `LOG_LEVEL` | **(Optional)** IF you want to enable the debug mode, Let's set the `LOG_LEVEL = "DEBUG"`.                                                                                                                             | `INFO`                                                             | Controls whether the application should produce detailed logs for debugging. |
+| `DOWNLOAD_FROM_S3_BUCKET` | Specifies the name of the S3 bucket from which a file will be downloaded.                                                                                                                                             | `ahihi-09262023`                                                   | Tells the application which S3 bucket to access for downloading the required file. |
+| `DOWNLOAD_FROM_S3_KEY` | Contains the key (or file path) of the object within the S3 bucket that needs to be downloaded.                                                                                                                       | `200MB-TESTFILE.ORG.pdf`                                           | Identifies the exact file within the S3 bucket that the application should download. |
+| `SAVE_TO_LOCATION` | Indicates the local file path where the downloaded file from S3 should be saved.                                                                                                                                      | `/app/downloaded/dynamicSize.bin`                                  | Specifies the destination directory and filename where the downloaded content will be stored locally. |
+| `DOWNLOAD_TYPE` | **(Optional)** Defines the method used to download the file from S3. Options include: Default (using a Re-Signed URL only for measuring download) or AWS-S3-SDK (using AWS's official S3 SDK for measuring download). | `Default` or `AWS-S3-SDK`                                          | Determines whether to use a Re-Signed URL or AWS's S3 SDK for downloading the file. |
+| `UPLOAD_FILE_TO_S3` | **(Optional)** Measure file uploads to S3.                                                                                                                                                                            | `false` or `true`. Default is `false`                              | `UPLOAD_FILE_TO_S3` lets you enable or disable the measurement of file uploads to S3, including upload speed and time. |
+| `PART_SIZE_MB` | **(Optional)** PART\_SIZE is an environment variable that specifies the size of each chunk (part) of a file to be downloaded from S3. The size is expressed in megabytes (MB).                                        | `5`                                                                | PART\_SIZE allows you to control the size of each download chunk in MB. This helps optimize download speed and efficiency by enabling the concurrent download of smaller parts of a large file. If not set, the entire file is downloaded in a single request. |
+| `SHA-256-CHECKSUM` | **(Optional)** Include the `SHA-256-CHECKSUM` of the file; Jougan will verify it after download.                                                                                                                      | `dfb81a5c3f3ae4cd6bc469390e3668f2a8f3e8546f1864719673da0d8b058237` | Ensure your file remains unchanged after downloading. |
+| `RANDOM_FILENAME_TO_SAVE_LOCAL` | **(Optional)** When true, Jougan will add a extra random string to the file name before saving it locally.                                                                                                            | `false` or `true`. Default is `false`                              | Creating multiple pods or jougans to download the same file from S3 can lead to issues with saving and deleting the file locally. |
+| `DOWNLOAD_2` | **(Optional)** You can download the file directly to disk instead of first downloading it to RAM and then writing it to disk.                                                                                         | `RAM` or `DISK`. Default is `RAM`                                  | They want to measure the direct download speed to disk instead of using the download speed via RAM to avoid disk bottlenecking. |
 
 
 ## Grafana
@@ -184,13 +185,6 @@ Links: https://grafana.com/grafana/dashboards/20013-jougan-measure-disk-speed/
 
 <a href="https://nimtechnology.com/2023/07/02/jougan-project/" target="_blank"><img alt="JouGan" src="https://grafana.com/api/dashboards/20013/images/15212/image"></a>
 
-## Quay.IO
-We also provide Jougan's image via Quay:   
-
-```
-quay.io/underndog/jougan
-```
-
 ## Create Helm Chart
 helm package ./helm-chart/jougan --destination ./helm-chart/   
-helm repo index . --url https://underndog.github.io/jougan   
+helm repo index . --url https://mrnim94.github.io/jougan   

@@ -2,43 +2,33 @@ apiVersion: v1
 entries:
   jougan:
   - apiVersion: v2
-    appVersion: v1.5.1
-    created: "2024-11-29T08:32:14.459130407Z"
-    description: A Helm chart for Kubernetes
-    digest: 723d6d807758e1ae74a4574b65f5fcffe3201ed3ae64cc6b2088de32d948cfd6
-    name: jougan
-    type: application
-    urls:
-    - https://underndog.github.io/jougan/helm-chart/jougan-1.0.0.tgz
-    version: 1.0.0
-  - apiVersion: v2
     appVersion: v0.0.2
-    created: "2024-11-29T08:32:14.458422765Z"
+    created: "2023-11-21T17:55:47.857714739Z"
     description: A Helm chart for Kubernetes
     digest: 928ba79bece0f41a6e1eef9a5ea7cb0698bbe7ad42230a72a7729cfafc2c438d
     name: jougan
     type: application
     urls:
-    - https://underndog.github.io/jougan/helm-chart/jougan-0.2.0.tgz
+    - https://mrnim94.github.io/jougan/helm-chart/jougan-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v2
     appVersion: v0.0.2
-    created: "2024-11-29T08:32:14.457705946Z"
+    created: "2023-11-21T17:55:47.848511747Z"
     description: A Helm chart for Kubernetes
     digest: 3bcfe70b5843102ead37cfc16ad557fdc641b32573f9baa9062938cd35e81c29
     name: jougan
     type: application
     urls:
-    - https://underndog.github.io/jougan/helm-chart/jougan-0.1.1.tgz
+    - https://mrnim94.github.io/jougan/helm-chart/jougan-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: 0.0.1
-    created: "2024-11-29T08:32:14.457126774Z"
+    created: "2023-11-21T17:55:47.847864175Z"
     description: A Helm chart for Kubernetes
     digest: 3557882a221c2db986c77a1e9b4b730f40916ce40bbe459136fb1e510960910f
     name: jougan
     type: application
     urls:
-    - https://underndog.github.io/jougan/helm-chart/jougan-0.1.0.tgz
+    - https://mrnim94.github.io/jougan/helm-chart/jougan-0.1.0.tgz
     version: 0.1.0
-generated: "2024-11-29T08:32:14.456321772Z"
+generated: "2023-11-21T17:55:47.846509067Z"

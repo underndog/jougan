@@ -11,14 +11,14 @@ jobs:
     name: jougan
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       - name: Run TruffleHog
         run: |
           docker pull dxa4481/trufflehog
           docker run -v ${{ github.workspace }}:/target dxa4481/trufflehog --entropy=False file:///target
-      # - name: Run Semgrep using a Container
-      #   run: |
-      #     docker run -e SEMGREP_APP_TOKEN=${{ secrets.SEMGREP_TOKEN }} --rm -v "$(pwd):/src" returntocorp/semgrep semgrep --config="p/golang" --metrics=off
+      - name: Run Semgrep using a Container
+        run: |
+          docker run -e SEMGREP_APP_TOKEN=${{ secrets.SEMGREP_TOKEN }} --rm -v "$(pwd):/src" returntocorp/semgrep semgrep --config="p/golang" --metrics=off
         # env:
         #   SEMGREP_SKIP_STATS: 1  # Optional: skip anonymous usage data collection
       # - name: List files in path
@@ -74,4 +74,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: quay.io/underndog/jougan:latest, quay.io/underndog/jougan:${{ env.RELEASE_VERSION }}
+          tags: quay.io/nimtechnology/jougan:latest, quay.io/nimtechnology/jougan:${{ env.RELEASE_VERSION }}
